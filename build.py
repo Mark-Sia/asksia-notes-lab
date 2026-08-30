@@ -155,9 +155,11 @@ def render_section(s):
 
 def note_page(n, qr):
     url = note_url(n); title = f"{n['emoji']} {n['title']}"
+    fname = f"{n['code']} Exam Cheat-Note.md"
     visual = f'<div class="visual"><img src="{n["visual"]}" alt="Sia visual"></div><p class="cap">🦭 {e(n["visual_caption"])}</p>' if n.get("visual") else ""
     body = "".join(render_section(s) for s in n["sections"])
-    cfg = json.dumps(dict(title=title, payload=payload_url(n), url=url, text=plain_text(n), shortcut=SHORTCUT_NAME, shortcutFile=f"{SITE}/{SHORTCUT_FILE}"), ensure_ascii=False)
+    cfg = json.dumps(dict(title=title, md=f"{SITE}/n/{n['id']}/note.md", html=f"{SITE}/n/{n['id']}/note.html",
+                          url=url, text=plain_text(n), file=fname), ensure_ascii=False)
     return f"""<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>{e(n['title'])} · AskSia Note</title><link rel="icon" href="data:,">
 <meta property="og:title" content="{e(n['title'])}"><meta property="og:image" content="{visual_url(n) or ''}">
@@ -173,44 +175,49 @@ def note_page(n, qr):
   <p class="source">Source: <a href="{n['source_url']}">{e(n['source_name'])}</a> · {n['source_pages']} pages · {n['source_chapters']} chapters → compressed into this one note.</p>
   <div class="cta"><div class="in">
     <a class="btn" id="add" href="#">{ICON} Add to Apple Notes</a>
-    <div class="alt"><a id="setup">Set up (one-time)</a>·<a id="sharetext">Share as text</a>·<a id="copyrich">Copy rich text</a></div>
+    <div class="alt"><a id="help">How it works</a>·<a id="dl" href="note.md" download="{fname}">Save the .md</a>·<a id="copyrich">Copy rich text</a></div>
   </div></div>
 </main>
-<aside class="aside"><div class="box"><h3>📱 Send to your iPhone</h3><p>Scan with the Camera app → the note opens in Safari → tap <b>Add to Apple Notes</b>. The note is written into Notes and Notes opens — no share sheet, no app picker.</p>{qr}<div class="u">{url}</div></div></aside></div>
-<div class="sheet" id="sheet"><div class="box"><button class="x" data-close>×</button><h3>One-time setup · 10 seconds</h3>
-<p>“Add to Apple Notes” runs a tiny Apple Shortcut that writes the note straight into your Notes app. Install it once:</p>
-<ol><li>Tap <b>Get the AskSia Notes shortcut</b> → in Shortcuts tap <b>Add Shortcut</b></li><li>Come back here and tap <b>Add to Apple Notes</b> again</li><li>First run only: allow the shortcut to open the note page</li></ol>
-<a class="btn" id="getsc" href="{SITE}/{SHORTCUT_FILE}">{ICON} Get the AskSia Notes shortcut</a>
-<p style="margin-top:12px"><a class="btn sec" id="done-setup" href="#">I've added it → Add to Apple Notes</a></p></div></div>
+<aside class="aside"><div class="box"><h3>📱 Scan with your iPhone</h3><p>Camera app → the note opens in Safari → tap <b>Add to Apple Notes</b> → pick <b>Notes</b> in the share sheet → <b>Import</b>. Headings, bold and lists come through as a real, editable Apple Note.</p>{qr}<div class="u">{url}</div></div></aside></div>
+<div class="sheet" id="sheet"><div class="box"><button class="x" data-close>×</button><h3>Add to Apple Notes</h3>
+<p>Tapping the button hands this note to iOS as a Markdown file. In the share sheet:</p>
+<ol><li>Pick <b>Notes</b> (备忘录)</li><li>Choose <b>Import</b> — not “Save as attachment”</li></ol>
+<p>Needs <b>iOS 26 or later</b> (Notes gained Markdown import there). If Notes isn't in the sheet: tap <b>Save the .md</b> below, then open <b>Files</b>, long-press the file → <b>Share</b> → <b>Notes</b> → <b>Import</b>.</p>
+<p style="margin-top:12px"><a class="btn sec" id="dl2" href="note.md" download="{fname}">Save the .md to Files</a></p></div></div>
 <div class="toast" id="toast"></div>
 <script>
 const N={cfg};const $=s=>document.querySelector(s);
 const isIOS=/iPhone|iPad|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
-const isMac=/Macintosh/.test(navigator.userAgent)&&!isIOS;
 function track(k){{try{{const d=JSON.parse(localStorage.getItem('asksia_notes_exp')||'{{}}');d[k]=(d[k]||0)+1;d._last=new Date().toISOString();localStorage.setItem('asksia_notes_exp',JSON.stringify(d));}}catch(e){{}}}}
-let T;function toast(m,ms=3000){{const t=$('#toast');t.textContent=m;t.classList.add('on');clearTimeout(T);T=setTimeout(()=>t.classList.remove('on'),ms);}}
-function installed(){{try{{return localStorage.getItem('asksia_shortcut')==='1'}}catch(e){{return false}}}}
-function runShortcut(){{
-  const input=N.title+"\\n"+N.payload;
-  const u='shortcuts://x-callback-url/run-shortcut?name='+encodeURIComponent(N.shortcut)+'&input=text&text='+encodeURIComponent(input)
-    +'&x-success='+encodeURIComponent(N.url+'?added=1')+'&x-error='+encodeURIComponent(N.url+'?install=1')+'&x-cancel='+encodeURIComponent(N.url+'?cancel=1');
-  track('shortcut_run');location.href=u;
+let T;function toast(m,ms=3200){{const t=$('#toast');t.textContent=m;t.classList.add('on');clearTimeout(T);T=setTimeout(()=>t.classList.remove('on'),ms);}}
+// prefetch the markdown so the share() call stays inside the tap gesture
+let MD=null,mdErr=null;
+fetch(N.md).then(r=>r.text()).then(t=>{{MD=t;}}).catch(e=>{{mdErr=e;}});
+function mdFile(){{return new File([new Blob([MD],{{type:'text/markdown'}})],N.file,{{type:'text/markdown'}});}}
+async function addToNotes(){{
+  track('notes_cta');
+  if(!MD){{toast('Still loading the note… tap again in a second');return;}}
+  if(navigator.canShare&&navigator.share){{
+    const f=mdFile();
+    if(navigator.canShare({{files:[f]}})){{
+      try{{await navigator.share({{files:[f],title:N.title}});track('shared_file');toast('Pick Notes → Import ✓');return;}}
+      catch(err){{if(err&&err.name==='AbortError'){{track('share_cancel');return;}}}}
+    }}
+  }}
+  $('#sheet').classList.add('on');   // no file sharing here → show the Files fallback
 }}
-function openSheet(){{$('#sheet').classList.add('on');}}
-$('#add').addEventListener('click',ev=>{{ev.preventDefault();track('notes_cta');
-  if(!(isIOS||isMac)){{toast('Open this page on your iPhone (scan the QR) →');return;}}
-  if(installed())runShortcut();else openSheet();}});
-$('#setup').addEventListener('click',openSheet);
-$('#getsc').addEventListener('click',()=>{{track('shortcut_get');try{{localStorage.setItem('asksia_shortcut','1')}}catch(e){{}}}});
-$('#done-setup').addEventListener('click',ev=>{{ev.preventDefault();try{{localStorage.setItem('asksia_shortcut','1')}}catch(e){{}};$('#sheet').classList.remove('on');runShortcut();}});
+$('#add').addEventListener('click',ev=>{{ev.preventDefault();
+  if(!isIOS){{track('notes_cta_desktop');toast('Scan the QR with your iPhone to add it to Notes →');return;}}
+  addToNotes();}});
+$('#help').addEventListener('click',()=>$('#sheet').classList.add('on'));
 document.querySelectorAll('[data-close]').forEach(x=>x.addEventListener('click',()=>$('#sheet').classList.remove('on')));
-$('#sharetext').addEventListener('click',async()=>{{track('share_text');if(navigator.share){{try{{await navigator.share({{title:N.title,text:N.text}});toast('Pick “Notes” in the sheet ✓');}}catch(e){{}}}}else toast('Sharing not available here');}});
-$('#copyrich').addEventListener('click',async()=>{{track('copy_rich');try{{const html=await (await fetch(N.payload)).text();
-  await navigator.clipboard.write([new ClipboardItem({{'text/html':new Blob([html],{{type:'text/html'}}),'text/plain':new Blob([N.text],{{type:'text/plain'}})}})]);toast('Copied ✓ Open Notes → paste');}}catch(e){{try{{await navigator.clipboard.writeText(N.text);toast('Copied as text ✓');}}catch(e2){{toast('Copy blocked');}}}}}});
-const q=new URLSearchParams(location.search);
-if(q.get('added')){{track('notes_added');toast('✓ Added to your Apple Notes',4000);try{{localStorage.setItem('asksia_shortcut','1')}}catch(e){{}}}}
-if(q.get('install')){{try{{localStorage.removeItem('asksia_shortcut')}}catch(e){{}};openSheet();}}
-if(q.get('src')==='qr')track('qr_scan');
+document.querySelectorAll('#dl,#dl2').forEach(a=>a.addEventListener('click',()=>track('download_md')));
+$('#copyrich').addEventListener('click',async()=>{{track('copy_rich');
+  try{{const html=await (await fetch(N.html)).text();
+    await navigator.clipboard.write([new ClipboardItem({{'text/html':new Blob([html],{{type:'text/html'}}),'text/plain':new Blob([N.text],{{type:'text/plain'}})}})]);
+    toast('Copied ✓ open Notes → paste (keeps formatting)');}}
+  catch(e){{try{{await navigator.clipboard.writeText(N.text);toast('Copied as plain text ✓');}}catch(e2){{toast('Copy blocked by the browser');}}}}}});
+if(new URLSearchParams(location.search).get('src')==='qr')track('qr_scan');
 track(isIOS?'note_open_ios':'note_open_other');
 </script></body></html>"""
 
@@ -230,8 +237,8 @@ def library_page(items):
 <div class="modal" id="m-{n['id']}"><div class="mbox"><button class="x" data-close>×</button>
   <div class="mhead">{ICON}<div><b>Add {e(n['code'])} to Apple Notes</b><div class="msub">{e(n['subtitle'].split(' · ')[0])}</div></div></div>
   <div class="mgrid"><div class="qrcol">{n['qr_svg']}<div class="u">{n['url']}</div></div>
-    <div class="how"><ol><li>Open the <b>Camera</b> app on your iPhone and point it here</li><li>Tap the link → the note opens in Safari (no login)</li><li>Tap <b>Add to Apple Notes</b> → the note is written into Notes and Notes opens</li></ol>
-      <p class="get">First time only: a 10-second setup installs the <b>AskSia Notes</b> shortcut. After that it's one tap, no app picker.<br>You get: course header · the visual Sia drew · exam facts · formulas · bilingual key terms · traps — all editable text.</p>
+    <div class="how"><ol><li>Open the <b>Camera</b> app on your iPhone and point it here</li><li>Tap the link → the note opens in Safari (no login)</li><li>Tap <b>Add to Apple Notes</b> → pick <b>Notes</b> in the share sheet → <b>Import</b></li></ol>
+      <p class="get">Needs <b>iOS 26+</b> — Notes gained Markdown import there, so headings, bold and lists survive.<br>You get: course header · the visual Sia drew · exam facts · formulas · bilingual key terms · traps — as a real, editable Apple Note.</p>
       <a class="b ghost" href="n/{n['id']}/" target="_blank" rel="noopener">Open the note page ↗</a></div></div></div></div>""" for n in items)
     return f"""<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>AskSia Library · Add to Apple Notes (MVP)</title><link rel="icon" href="data:,">
 <style>
@@ -253,7 +260,7 @@ def library_page(items):
 <div class="nav"><img src="assets/logo.png" alt="AskSia"><div class="links"><span class="on">For Students ⌄</span><span>Useful Tools ⌄</span><span>Resources ⌄</span><span>Pricing</span></div><div class="right"><span>Log in</span><span class="dl">Download App →</span></div></div>
 <div class="crumbbar"><span>Library / <b>Exam Bibles</b> / Add to Apple Notes</span><span class="pill">Get A+ · $0.99 Trial</span></div>
 <div class="lab"><div class="banner"><div><h1>Every Bible, one tap into <span class="g">your Apple Notes</span></h1>
-<p><b>Internal MVP v2 · 2026-08-30 · Kai.</b> Next to “Download PDF”, a second exit: the bible compressed into one editable Apple Note — course header → the visual Sia drew → exam facts · formulas · bilingual terms · traps. Written straight into Notes by a tiny shortcut (one-time install), then Notes opens by itself.<br><b>Test:</b> click <b>Add to Apple Notes</b> → scan with your iPhone → follow the 10-second setup once → tap again.</p></div>
+<p><b>Internal MVP v2 · 2026-08-30 · Kai.</b> Next to “Download PDF”, a second exit: the bible compressed into one editable Apple Note — course header → the visual Sia drew → exam facts · formulas · bilingual terms · traps. Handed to iOS as a Markdown file, so Notes imports it as a real editable note — headings, bold, lists intact (iOS 26+).<br><b>Test:</b> click <b>Add to Apple Notes</b> → scan the QR with your iPhone → tap the button → pick <b>Notes</b> → <b>Import</b>.</p></div>
 <div class="exp"><div class="t">Experiment: Notes CTR vs PDF CTR <small>this browser only</small></div><div class="bars"><span>📝 Notes</span><div class="bar"><i id="b1" style="width:0"></i></div><span class="n" id="n1">0</span><span>📄 PDF</span><div class="bar pdf"><i id="b2" style="width:0"></i></div><span class="n" id="n2">0</span></div><div class="ratio">Notes ÷ PDF = <b id="ratio">—</b> · hypothesis: ≥ 2×</div><div class="rs" id="reset">reset counters</div></div></div></div>
 <div class="list">{rows}</div>
 <script>
@@ -273,8 +280,7 @@ def main():
     OUT.mkdir(exist_ok=True); (OUT / "assets").mkdir(exist_ok=True)
     for f in ("logo.png", "sia.png"): shutil.copy(ASSETS / f, OUT / "assets" / f)
     (OUT / ".nojekyll").write_text("")
-    sc = ROOT / "dist" / f"{SHORTCUT_NAME}.shortcut"
-    if sc.exists(): shutil.copy(sc, OUT / SHORTCUT_FILE)
+    (OUT / SHORTCUT_FILE).unlink(missing_ok=True)   # Shortcut route dropped: Create Note coerces to plain text
     items = []
     for n in NOTES:
         if n["id"] not in FEATURED: continue
