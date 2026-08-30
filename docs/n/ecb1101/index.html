@@ -49,7 +49,7 @@ ol.steps{margin:0;padding-left:0;list-style:none;counter-reset:s}ol.steps li{cou
   <p class="source">Source: <a href="https://www.asksia.ai/explore/au-monash/ecb1101">ECB1101 Exam Bible</a> · 23 pages · 9 chapters → compressed into this one note.</p>
   <div class="cta"><div class="in">
     <a class="btn" id="add" href="#"><svg class="nicon" viewBox="0 0 40 40" width="22" height="22" aria-hidden="true"><rect x="2" y="2" width="36" height="36" rx="9" fill="#fff" stroke="#d9d9de"/><path d="M2 11 A9 9 0 0 1 11 2 H29 A9 9 0 0 1 38 11 V12 H2 Z" fill="#F5C542"/><rect x="9" y="18" width="22" height="2.4" rx="1.2" fill="#9a9aa2"/><rect x="9" y="24" width="22" height="2.4" rx="1.2" fill="#9a9aa2"/><rect x="9" y="30" width="14" height="2.4" rx="1.2" fill="#9a9aa2"/></svg> Add to Apple Notes</a>
-    <div class="alt"><a id="alt2">Copy &amp; paste instead</a>·<a id="dl" href="note-import.html" download="ECB1101 Exam Cheat-Note.html">Save the file</a></div>
+    <div class="alt"><a id="alt2">Want the image too? Copy &amp; paste</a>·<a id="dl" href="note-import.html" download="ECB1101 Exam Cheat-Note.html">Save the file</a></div>
   </div></div>
 </main>
 <aside class="aside"><div class="box"><h3>📱 Scan with your iPhone</h3><p>Camera app → the note opens in Safari → tap <b>Add to Apple Notes</b> → pick <b>Notes</b> → <b>Import</b>. The finished note — visual included — is waiting in Notes.</p><?xml version='1.0' encoding='UTF-8'?>
@@ -100,7 +100,7 @@ $('#add').addEventListener('click',async ev=>{ev.preventDefault();track('notes_c
   }
   if(r==='cancel'){track('share_cancel');return;}
   if(r==='ok'){track('shared_import');
-    sheet('Pick Notes → Import','<p><b>In the share sheet:</b></p><ol><li>Tap <b>Notes</b> (备忘录)</li><li>Tap <b>Import</b> — the finished note appears in Notes, visual included</li></ol>');
+    sheet('Pick Notes → Import','<p><b>In the share sheet:</b></p><ol><li>Tap <b>Notes</b> (备忘录)</li><li>Tap <b>Import</b> — the finished note lands in your <b>Imported Notes</b> folder</li></ol><p style="font-size:13px;color:#777">Headings, bold, bilingual terms and tags all survive. Apple's importer cannot carry images, so the Sia visual rides as a tappable link — tap <b>Want the image too?</b> below the button to paste it in full instead.</p>');
     setTimeout(()=>{try{location.href='mobilenotes://';}catch(e){}},600);return;}
   const ok=await copyRich();track('fallback_paste');
   sheet(ok?'Copied — paste it in':'Save the file instead',

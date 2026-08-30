@@ -75,11 +75,11 @@ def notes_md(n):
     L = [f"# {n['emoji']} {n['code']} · {n['subtitle'].split(' · ')[0]}", "",
          f"**{n['uni']}** · {n['term']} · {n['discipline']}", "",
          " ".join(tags(n)), ""]
-    if n.get("visual"):   # TEST: data-URI image inside Markdown — does Notes' importer keep it?
-        sm = (ASSETS / n["visual"]).with_name((ASSETS / n["visual"]).stem + "-sm.jpg")
-        if sm.exists():
-            L += ["![Sia visual](data:image/jpeg;base64," + base64.b64encode(sm.read_bytes()).decode() + ")", "",
-                  f"*🦭 {n['visual_caption']}*", ""]
+    # PROVEN on device 2026-08-30: Notes' Markdown importer degrades EVERY image to a link — remote URL and
+    # data: URI alike. So the visual ships as a deliberate, labelled link here, and travels for real on the
+    # paste path (see notes_html). Do not re-add ![]() — it only produces an orphan gold link.
+    if n.get("visual"):
+        L += [f"[🖼 {n['visual_caption']} — tap to open]({visual_url(n)})", ""]
     for s in n["sections"]:
         L.append(f"## {s['emoji']} {s['title']}"); L.append(""); k = s["kind"]
         if k in ("facts", "formulas"): L += [f"- **{a}:** {b}" for a, b in s["items"]]
@@ -221,7 +221,7 @@ def note_page(n, qr):
   <p class="source">Source: <a href="{n['source_url']}">{e(n['source_name'])}</a> · {n['source_pages']} pages · {n['source_chapters']} chapters → compressed into this one note.</p>
   <div class="cta"><div class="in">
     <a class="btn" id="add" href="#">{ICON} Add to Apple Notes</a>
-    <div class="alt"><a id="alt2">Copy &amp; paste instead</a>·<a id="dl" href="note-import.html" download="{fbase}.html">Save the file</a></div>
+    <div class="alt"><a id="alt2">Want the image too? Copy &amp; paste</a>·<a id="dl" href="note-import.html" download="{fbase}.html">Save the file</a></div>
   </div></div>
 </main>
 <aside class="aside"><div class="box"><h3>📱 Scan with your iPhone</h3><p>Camera app → the note opens in Safari → tap <b>Add to Apple Notes</b> → pick <b>Notes</b> → <b>Import</b>. The finished note — visual included — is waiting in Notes.</p>{qr}<div class="u">{url}</div></div></aside></div>
@@ -271,7 +271,7 @@ $('#add').addEventListener('click',async ev=>{{ev.preventDefault();track('notes_
   }}
   if(r==='cancel'){{track('share_cancel');return;}}
   if(r==='ok'){{track('shared_import');
-    sheet('Pick Notes → Import','<p><b>In the share sheet:</b></p><ol><li>Tap <b>Notes</b> (备忘录)</li><li>Tap <b>Import</b> — the finished note appears in Notes, visual included</li></ol>');
+    sheet('Pick Notes → Import','<p><b>In the share sheet:</b></p><ol><li>Tap <b>Notes</b> (备忘录)</li><li>Tap <b>Import</b> — the finished note lands in your <b>Imported Notes</b> folder</li></ol><p style="font-size:13px;color:#777">Headings, bold, bilingual terms and tags all survive. Apple\'s importer cannot carry images, so the Sia visual rides as a tappable link — tap <b>Want the image too?</b> below the button to paste it in full instead.</p>');
     setTimeout(()=>{{try{{location.href='mobilenotes://';}}catch(e){{}}}},600);return;}}
   const ok=await copyRich();track('fallback_paste');
   sheet(ok?'Copied — paste it in':'Save the file instead',
