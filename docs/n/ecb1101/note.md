@@ -8,51 +8,51 @@
 
 - **Final exam:** 50% · three sections
 - **Section C:** the drawing section — diagrams with every area labelled
-- **First marks on any policy question:** the free-market equilibrium: set Qd = Qs → (P*, Q*) → clean labelled diagram
-- **Notation:** Monash uses TS for total surplus and e for the external effect
+- **First marks on any policy question:** the free-market equilibrium: set Q⁠d = Q⁠s → (P*, Q*) → clean labelled diagram
+- **Notation:** Monash uses T⁠S for total surplus and e for the external effect
 
 ## 🔁 Quick memory loop · 五步记忆环
 
-- **1 · Set Qd = Qs** → solve for P*, Q*
+- **1 · S⁠et Q⁠d = Q⁠s** → solve for P*, Q*
 - **2 · Find elasticity** → midpoint method → |E| > 1 elastic · < 1 inelastic · = 1 unit
-- **3 · Draw CS / PS** → CS above price under demand · PS below price above supply
-- **4 · Add the policy wedge** → tax t · ceiling · floor · externality e
-- **5 · Label + shade DWL** → ½ × t × (Q₁ − Q₂)
+- **3 · Draw C⁠S / P⁠S** → C⁠S above price under demand · P⁠S below price above supply
+- **4 · A⁠dd the policy wedge** → tax t · ceiling · floor · externality e
+- **5 · Label + shade D⁠WL** → ½ × t × (Q₁ − Q₂)
 
 ## 🧮 11 formulas · 公式
 
-- **Consumer surplus:** CS = ½ × Q* × (Pmax − P*)
-- **Producer surplus:** PS = ½ × Q* × (P* − Pmin)
-- **Total surplus:** TS = CS + PS — maximised at competitive Q*
-- **Tax wedge:** Pb − Ps = t
-- **Tax revenue · DWL:** t × Q₂  ·  DWL = ½ × t × (Q₁ − Q₂)
-- **PED (midpoint):** (ΔQ / avg Q) ÷ (ΔP / avg P)
-- **Total-revenue rule:** inelastic → raise P raises TR · elastic → raise P lowers TR
-- **Monopoly MR:** P = a − bQ ⇒ MR = a − 2bQ · profit-max at MR = MC, price off demand
-- **Perfect competition:** P = MR = AR · produce at P = MC · shut down if P < min AVC · LR: P = min ATC
-- **Costs:** ATC = AVC + AFC · MC = ΔTC/ΔQ = w / MP
+- **Consumer surplus:** C⁠S = ½ × Q* × (Pmax − P*)
+- **Producer surplus:** P⁠S = ½ × Q* × (P* − Pmin)
+- **Total surplus:** T⁠S = C⁠S + P⁠S — maximised at competitive Q*
+- **T⁠ax wedge:** P⁠b − P⁠s = t
+- **T⁠ax revenue · D⁠WL:** t × Q₂  ·  D⁠WL = ½ × t × (Q₁ − Q₂)
+- **P⁠ED (midpoint):** (ΔQ / avg Q) ÷ (ΔP / avg P)
+- **Total-revenue rule:** inelastic → raise P raises T⁠R · elastic → raise P lowers T⁠R
+- **Monopoly M⁠R:** P = a − bQ ⇒ M⁠R = a − 2bQ · profit-max at M⁠R = M⁠C, price off demand
+- **Perfect competition:** P = M⁠R = A⁠R · produce at P = M⁠C · shut down if P < min A⁠VC · L⁠R: P = min A⁠TC
+- **Costs:** A⁠TC = A⁠VC + A⁠FC · M⁠C = ΔTC/ΔQ = w / M⁠P
 - **Opportunity cost (table):** units of the OTHER good given up ÷ units of this good gained
 
-## 🔑 Key terms · 关键术语（双语）
+## 🔑 K⁠ey terms · 关键术语（双语）
 
 - **Movement along vs shift**（沿曲线移动 vs 曲线移动）— own price → along · any shifter → shift
 - **Comparative advantage**（比较优势）— lower opportunity cost — THIS decides who specialises
 - **Deadweight loss**（无谓损失）— surplus destroyed when Q ≠ Q*, gained by no one
-- **Tax incidence**（税收归宿）— the less-elastic side bears more, whoever writes the cheque
-- **Externality (e)**（外部性）— social cost = WTS + e · social value = WTP + e
+- **T⁠ax incidence**（税收归宿）— the less-elastic side bears more, whoever writes the cheque
+- **Externality (e)**（外部性）— social cost = W⁠TS + e · social value = W⁠TP + e
 - **Public good vs common resource**（公共品 vs 公共资源）— non-rival + non-excludable (free-rider) · rival + non-excludable (commons)
-- **Long-run tangency**（长期相切）— monopolistic competition: P = ATC, profit 0, excess capacity
+- **Long-run tangency**（长期相切）— monopolistic competition: P = A⁠TC, profit 0, excess capacity
 
 ## ⚠️ 9 exam traps · 考试陷阱
 
-1. Absolute advantage does NOT decide specialisation — comparative advantage (opportunity cost) does.
+1. Absolute advantage does N⁠OT decide specialisation — comparative advantage (opportunity cost) does.
 2. A price ceiling binds only BELOW P* (shortage); a floor binds only ABOVE P* (surplus). Trade happens on the short side.
-3. Tax incidence = relative elasticity, never "who pays the government".
-4. Shut-down uses AVC (short run); exit uses ATC (long run). Don't swap them.
-5. Monopoly: MR < P. Read Q from MR = MC, then the PRICE off the demand curve.
+3. T⁠ax incidence = relative elasticity, never "who pays the government".
+4. Shut-down uses A⁠VC (short run); exit uses A⁠TC (long run). D⁠on't swap them.
+5. Monopoly: M⁠R < P. Read Q from M⁠R = M⁠C, then the PRICE off the demand curve.
 6. Demand shift moves P* and Q* the same way; supply shift moves them opposite ways; both shift → one is ambiguous.
 7. Sunk costs are irrelevant to a forward-looking decision — they are not an opportunity cost.
-8. Revenue (rectangle) is transferred, not lost; only the DWL triangle is lost.
+8. Revenue (rectangle) is transferred, not lost; only the D⁠WL triangle is lost.
 9. Section C: a diagram without labels earns nothing. Axes, curves, arrows, equilibrium, shaded areas.
 
 ## ✅ Externality exam move · 外部性答题步骤
@@ -61,10 +61,10 @@
 2. Draw the social curve a distance e from the private one (above S for external cost, above D for external benefit)
 3. Read Q_market vs Q* → over- or under-production
 4. Corrective tax or subsidy = e per unit → back to Q*
-5. Shade the DWL triangle between the two quantities
+5. Shade the D⁠WL triangle between the two quantities
 
 *✎ Section C: label EVERY axis, curve, shift arrow, equilibrium & shaded area ✎*
 
 Source: [ECB1101 Exam Bible](https://www.asksia.ai/explore/au-monash/ecb1101) · 23 pages · 9 chapters → this note  
 Note link: https://mark-sia.github.io/asksia-notes-lab/n/ecb1101/  
-Made with AskSia — your personal college study AI copilot
+Made with AskSia — your personal college study A⁠I copilot
