@@ -68,9 +68,11 @@ let T;function toast(m,ms=3600){const t=$('#toast');t.textContent=m;t.classList.
 function sheet(title,html){$('#sheetTitle').textContent=title;$('#sheetBody').innerHTML=html;$('#sheet').classList.add('on');}
 
 /* prefetch both payloads so the share() call stays inside the tap gesture */
-let IMP=null, RICH=null;
+let IMP=null, RICH=null, MDTXT=null, IMGBLOB=null;
 const toDataURL=b=>new Promise(r=>{const fr=new FileReader();fr.onload=()=>r(fr.result);fr.readAsDataURL(b);});
 (async()=>{
+  try{MDTXT=await (await fetch(N.md)).text();}catch(e){}
+  try{IMGBLOB=await (await fetch(N.imgLocal)).blob();}catch(e){}
   try{IMP=await (await fetch(N.imp)).text();}catch(e){}
   try{const h=await (await fetch(N.html)).text();
     let out=h; if(N.img){try{out=h.split(N.img).join(await toDataURL(await (await fetch(N.imgLocal)).blob()));}catch(e){}}
@@ -90,8 +92,13 @@ async function copyRich(){
 }
 $('#add').addEventListener('click',async ev=>{ev.preventDefault();track('notes_cta');
   if(!isIOS){toast('Scan the QR with your iPhone →');return;}
-  if(!IMP){toast('Still loading the note… tap again in a second');return;}
-  const r=await shareFile(IMP,N.fbase+'.html','text/html');
+  if(!MDTXT){toast('Still loading the note… tap again in a second');return;}
+  const files=[new File([new Blob([MDTXT],{type:'text/markdown'})],N.fbase+'.md',{type:'text/markdown'})];
+  if(IMGBLOB)files.push(new File([IMGBLOB],N.fbase+'.jpg',{type:'image/jpeg'}));
+  let r='unsupported';
+  if(navigator.canShare&&navigator.canShare({files})){
+    try{await navigator.share({files});r='ok';}catch(err){r=(err&&err.name==='AbortError')?'cancel':'fail';}
+  }
   if(r==='cancel'){track('share_cancel');return;}
   if(r==='ok'){track('shared_import');
     sheet('Pick Notes → Import','<p><b>In the share sheet:</b></p><ol><li>Tap <b>Notes</b> (备忘录)</li><li>Tap <b>Import</b> — the finished note appears in Notes, visual included</li></ol>');
