@@ -4,7 +4,9 @@
 
 #ECB1101 #Monash #Economics #ExamBible #S12026
 
-[🖼 S⁠ia drew this from the ECB1101 Bible P⁠DF (/studyguide) — 4 models, the memory loop, the weak spot. — tap to open](https://mark-sia.github.io/asksia-notes-lab/n/ecb1101/ecb1101-visual.jpg)
+[🖼 S⁠ia's one-page visual — tap to open](https://mark-sia.github.io/asksia-notes-lab/n/ecb1101/ecb1101-visual.jpg)
+
+*S⁠ia drew this from the ECB1101 Bible P⁠DF (/studyguide) — 4 models, the memory loop, the weak spot.*
 
 ## 📌 Exam facts · 考试事实
 

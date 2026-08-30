@@ -79,7 +79,7 @@ def notes_md(n):
     # data: URI alike. So the visual ships as a deliberate, labelled link here, and travels for real on the
     # paste path (see notes_html). Do not re-add ![]() — it only produces an orphan gold link.
     if n.get("visual"):
-        L += [f"[🖼 {n['visual_caption']} — tap to open]({visual_url(n)})", ""]
+        L += [f"[🖼 Sia's one-page visual — tap to open]({visual_url(n)})", "", f"*{n['visual_caption']}*", ""]
     for s in n["sections"]:
         L.append(f"## {s['emoji']} {s['title']}"); L.append(""); k = s["kind"]
         if k in ("facts", "formulas"): L += [f"- **{a}:** {b}" for a, b in s["items"]]
