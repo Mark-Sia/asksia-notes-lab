@@ -1,11 +1,8 @@
 # 📈 ECB1101 · Introductory Microeconomics
 
-**Monash University** · S1 2026 · Economics  
-🏷 #ECB1101 #Monash #Economics #ExamBible #S12026
+**Monash University** · S1 2026 · Economics
 
-![Sia visual](https://mark-sia.github.io/asksia-notes-lab/n/ecb1101/ecb1101-visual.jpg)
-
-*🦭 Sia drew this from the ECB1101 Bible PDF (/studyguide) — 4 models, the memory loop, the weak spot.*
+#ECB1101 #Monash #Economics #ExamBible #S12026
 
 ## 📌 Exam facts · 考试事实
 
