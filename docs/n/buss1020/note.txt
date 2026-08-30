@@ -1,0 +1,70 @@
+📊 BUSS1020 Final Exam Cheat-Note
+Quantitative Business Analysis · University of Sydney
+
+123 pages → 1 note. Every formula, every trap, the test-picking tree.
+123 页 bible 压成 1 条备忘录：全部公式、全部陷阱、选检验决策树。
+
+📌 EXAM FACTS · 考试事实
+• Final exam: 40% · closed book · 120 min + 10 min reading
+• Paper: 18 MCQ × 2 marks + 5 written questions = 100 marks
+• Also counts: MyLab homework 15% · in-semester test 20% · group assignment 25%
+• The edge: Formula sheet is provided → marks come from fast, correct application, not memory
+
+🧭 WHICH TEST DO I USE? · 选检验决策树
+• One mean, σ known → Z = (X̄ − μ₀) / (σ/√n)
+• One mean, σ unknown → t = (X̄ − μ₀) / (S/√n) · df = n − 1
+• One proportion → Z = (p − π₀) / √[π₀(1−π₀)/n]  ← use π₀, not p
+• Two means · paired ("before/after", same subjects) → t on the differences D · df = n − 1
+• Two means · independent, equal variances → pooled t · df = n₁ + n₂ − 2
+• Two means · independent, unequal variances → separate-variance t (Welch df)
+• Two proportions → Z with pooled p̄ = (X₁+X₂)/(n₁+n₂)
+
+🧮 12 FORMULAS · 公式
+• Sample SD: S = √[ Σ(Xᵢ − X̄)² / (n − 1) ]
+• Coefficient of variation: CV = (S / X̄) × 100%
+• Z-score: Z = (X − X̄) / S
+• Standard error of the mean: SE = σ / √n
+• Confidence interval: estimate ± (critical value) × SE
+• Z critical values: 90% → 1.645 · 95% → 1.96 · 98% → 2.33 · 99% → 2.58
+• Sample size (mean): n = Z²σ² / e²  → always round UP
+• Sample size (proportion): n = Z²π(1−π) / e²
+• Binomial: μ = nπ · σ² = nπ(1−π)
+• Poisson: μ = σ² = λ
+• Regression line: Ŷ = b₀ + b₁X · r² = SSR / SST
+• Adjusted r²: 1 − (1 − r²)(n − 1)/(n − k − 1)
+
+🔑 KEY TERMS · 关键术语（双语）
+• Parameter vs statistic（参数 vs 统计量）— Greek = population, Latin = sample
+• Standard error（标准误）— SD of the sampling distribution, σ/√n
+• Central Limit Theorem（中心极限定理）— X̄ ≈ normal when n ≥ 30, whatever the population shape
+• Type I / Type II error（第一类 / 第二类错误）— α = reject a true H₀ · β = keep a false H₀ · power = 1 − β
+• p-value（p 值）— P(statistic at least this extreme | H₀ true); reject when p < α
+• Confidence interval（置信区间）— point estimate ± margin of error
+• Coefficient of variation（变异系数）— unit-free spread, compare across scales
+• Independence（独立性）— P(A|B) = P(A)  ⇔  P(A and B) = P(A)P(B)
+• Dummy variable（虚拟变量）— 0/1 predictor; coefficient = gap vs the omitted category
+• Prediction vs confidence interval（预测区间 vs 置信区间）— PI (one Y) is always WIDER than CI (mean Y)
+
+⚠️ 9 EXAM TRAPS · 考试陷阱
+1. σ vs σ/√n — ONE parcel uses σ; the MEAN of 36 parcels uses σ/√n. The #1 error in the back half of the unit.
+2. Sample variance divides by (n − 1), never n.
+3. Sample-size answers ALWAYS round up, and use Z (not t) — you are planning before data exist.
+4. Proportion test SE uses the hypothesised π₀, not the sample p.
+5. "Fail to reject" ≠ "accept". Write "insufficient evidence", never "H₀ is true".
+6. "Before and after" / "same subjects" = PAIRED. Treating it as independent throws away the design.
+7. BINOM.DIST last argument: 0 = exact, 1 = cumulative. "At least 13" = 1 − BINOM.DIST(12, n, π, 1).
+8. Every regression coefficient: "…holding the other variables constant". Dummies: name the omitted category.
+9. r has the same sign as the slope; residual = actual − predicted (positive = above the line).
+
+✅ THE 5-STEP RITUAL FOR EVERY TEST · 答题仪式
+1. State H₀ and H₁ — with the parameter symbol (μ, π), never X̄ or p
+2. Choose α and the test (use the tree above)
+3. Compute the statistic — show the standard error line
+4. Critical value or p-value
+5. Conclude in business English, in context
+
+✎ Formula sheet is GIVEN — your edge is speed + picking the right test ✎
+
+Source: BUSS1020 Course Bible · 123 pages · https://www.asksia.ai/explore/au-usyd/buss1020
+This note: https://mark-sia.github.io/asksia-notes-lab/n/buss1020/
+Made with AskSia — your personal college study AI copilot
