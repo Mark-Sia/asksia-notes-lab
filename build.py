@@ -25,7 +25,7 @@ TONES = {"yellow": ("#FFF8DF", "#F1E2A7", "#7A5A00"), "green": ("#EDF8EE", "#C5E
 
 def e(s): return H.escape(str(s), quote=True)
 def note_url(n): return f"{SITE}/n/{n['id']}/"
-def payload_url(n): return f"{SITE}/n/{n['id']}/note.html"
+def payload_url(n): return f"{SITE}/n/{n['id']}/note.json"
 def visual_url(n): return f"{SITE}/n/{n['id']}/{n['visual']}" if n.get("visual") else None
 def tags(n): return [f"#{n['code']}", f"#{n['uni_short']}", f"#{n['discipline'].replace(' ', '')}", "#ExamBible", f"#{n['term'].replace(' ', '')}"]
 
@@ -58,6 +58,25 @@ def notes_html(n):
     P.append(f"<p>Source: <a href='{n['source_url']}'>{e(n['source_name'])}</a> · {n['source_pages']} pages · {n['source_chapters']} chapters → this note<br>"
              f"Note link: <a href='{note_url(n)}'>{note_url(n)}</a><br>Made with AskSia — your personal college study AI copilot</p>")
     return '<!doctype html><html><head><meta charset="utf-8"></head><body>' + "".join(P) + "</body></html>"
+
+
+def notes_md(n):
+    """Markdown payload → 'Make Rich Text from Markdown' → Create Note. Header · visual · structured text."""
+    L = [f"**{n['uni']}** · {n['code']} {n['subtitle'].split(' · ')[0]} · {n['term']}  ", " ".join(tags(n)), ""]
+    if n.get("visual"): L += [f"![Sia visual]({visual_url(n)})", "", f"*🦭 {n['visual_caption']}*", ""]
+    for s in n["sections"]:
+        L.append(f"## {s['emoji']} {s['title']}"); L.append(""); k = s["kind"]
+        if k in ("facts", "formulas"): L += [f"- **{a}:** {b}" for a, b in s["items"]]
+        elif k == "tree": L += [f"- **{a}** → {b}" for a, b in s["steps"]]
+        elif k == "terms": L += [f"- **{a}**（{z}）— {g}" for a, z, g in s["items"]]
+        elif k in ("traps", "ritual"): L += [f"{i}. {t}" for i, t in enumerate(s.get("items") or s.get("steps"), 1)]
+        elif k == "table":
+            L += [f"- **{r[0]}** — {r[1]} — {r[2]}" for r in s["rows"]]
+            if s.get("foot"): L += ["", f"→ {s['foot']}"]
+        L.append("")
+    L += [f"*✎ {n['handwriting']}*", "", f"Source: [{n['source_name']}]({n['source_url']}) · {n['source_pages']} pages · {n['source_chapters']} chapters → this note  ",
+          f"Note link: {note_url(n)}  ", "Made with AskSia — your personal college study AI copilot"]
+    return "\n".join(L) + "\n"
 
 def plain_text(n):
     L = [f"{n['emoji']} {n['title']}", f"{n['uni']} · {n['code']} · {n['term']}", " ".join(tags(n)), ""]
@@ -260,8 +279,10 @@ def main():
         if n.get("visual"): shutil.copy(ASSETS / n["visual"], d / n["visual"])
         (d / "index.html").write_text(note_page(n, svg), encoding="utf-8")
         (d / "note.html").write_text(notes_html(n), encoding="utf-8")
+        (d / "note.md").write_text(notes_md(n), encoding="utf-8")
+        (d / "note.json").write_text(json.dumps({"title": f"{n['emoji']} {n['title']}", "md": notes_md(n)}, ensure_ascii=False), encoding="utf-8")
         (d / "note.txt").write_text(plain_text(n), encoding="utf-8")
-        for stale in ("card.png", "_card.html", "note.json"): (d / stale).unlink(missing_ok=True)
+        for stale in ("card.png", "_card.html"): (d / stale).unlink(missing_ok=True)
         items.append(dict(n, url=note_url(n), qr_svg=svg)); print("note →", d)
     for stale in ("buss1020", "sat-math"):   # not featured this round
         if (OUT / "n" / stale).exists(): shutil.rmtree(OUT / "n" / stale)

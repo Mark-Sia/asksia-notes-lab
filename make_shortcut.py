@@ -17,9 +17,10 @@ actions = [
  {"WFWorkflowActionIdentifier": "is.workflow.actions.getitemfromlist", "WFWorkflowActionParameters": {"UUID": U[1], "WFInput": tok_out(U[0], "Split Text"), "WFItemSpecifier": "First Item", "CustomOutputName": "Note Title"}},
  {"WFWorkflowActionIdentifier": "is.workflow.actions.getitemfromlist", "WFWorkflowActionParameters": {"UUID": U[2], "WFInput": tok_out(U[0], "Split Text"), "WFItemSpecifier": "Last Item", "CustomOutputName": "Payload URL"}},
  {"WFWorkflowActionIdentifier": "is.workflow.actions.downloadurl", "WFWorkflowActionParameters": {"UUID": U[3], "WFURL": tok_out_str(U[2], "Payload URL"), "WFHTTPMethod": "GET", "ShowHeaders": False}},
- {"WFWorkflowActionIdentifier": "is.workflow.actions.getrichtextfromhtml", "WFWorkflowActionParameters": {"UUID": U[4], "WFHTML": tok_out(U[3], "Contents of URL")}},
+ {"WFWorkflowActionIdentifier": "is.workflow.actions.getvalueforkey", "WFWorkflowActionParameters": {"UUID": U[7], "WFInput": tok_out(U[3], "Contents of URL"), "WFGetDictionaryValueType": "Value", "WFDictionaryKey": "md", "CustomOutputName": "Markdown"}},
+ {"WFWorkflowActionIdentifier": "is.workflow.actions.getrichtextfrommarkdown", "WFWorkflowActionParameters": {"UUID": U[4], "WFInput": tok_out(U[7], "Markdown")}},
  {"WFWorkflowActionIdentifier": "com.apple.mobilenotes.SharingExtension", "WFWorkflowActionParameters": {"UUID": U[5], "AppIntentDescriptor": desc("CreateNoteLinkAction"),
-      "name": tok_out_str(U[1], "Note Title"), "WFCreateNoteInput": tok_out_str(U[4], "Rich Text from HTML"), "ShowWhenRun": False}},
+      "name": tok_out_str(U[1], "Note Title"), "WFCreateNoteInput": tok_out_str(U[4], "Rich Text from Markdown"), "ShowWhenRun": False}},
 ]
 if OPEN:
     actions.append({"WFWorkflowActionIdentifier": "is.workflow.actions.openapp", "WFWorkflowActionParameters": {"UUID": U[6], "WFAppIdentifier": B, "WFSelectedApp": {"BundleIdentifier": B, "Name": "Notes", "TeamIdentifier": "0000000000"}}})
