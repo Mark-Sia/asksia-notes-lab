@@ -75,8 +75,11 @@ def notes_md(n):
     L = [f"# {n['emoji']} {n['code']} · {n['subtitle'].split(' · ')[0]}", "",
          f"**{n['uni']}** · {n['term']} · {n['discipline']}", "",
          " ".join(tags(n)), ""]
-    # NB: no ![image] here — Notes' Markdown import never attaches images, it degrades them to a dead link.
-    # The visual travels on the rich-text (paste) path instead.
+    if n.get("visual"):   # TEST: data-URI image inside Markdown — does Notes' importer keep it?
+        sm = (ASSETS / n["visual"]).with_name((ASSETS / n["visual"]).stem + "-sm.jpg")
+        if sm.exists():
+            L += ["![Sia visual](data:image/jpeg;base64," + base64.b64encode(sm.read_bytes()).decode() + ")", "",
+                  f"*🦭 {n['visual_caption']}*", ""]
     for s in n["sections"]:
         L.append(f"## {s['emoji']} {s['title']}"); L.append(""); k = s["kind"]
         if k in ("facts", "formulas"): L += [f"- **{a}:** {b}" for a, b in s["items"]]
@@ -262,7 +265,6 @@ $('#add').addEventListener('click',async ev=>{{ev.preventDefault();track('notes_
   if(!isIOS){{toast('Scan the QR with your iPhone →');return;}}
   if(!MDTXT){{toast('Still loading the note… tap again in a second');return;}}
   const files=[new File([new Blob([MDTXT],{{type:'text/markdown'}})],N.fbase+'.md',{{type:'text/markdown'}})];
-  if(IMGBLOB)files.push(new File([IMGBLOB],N.fbase+'.jpg',{{type:'image/jpeg'}}));
   let r='unsupported';
   if(navigator.canShare&&navigator.canShare({{files}})){{
     try{{await navigator.share({{files}});r='ok';}}catch(err){{r=(err&&err.name==='AbortError')?'cancel':'fail';}}

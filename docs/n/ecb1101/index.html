@@ -94,7 +94,6 @@ $('#add').addEventListener('click',async ev=>{ev.preventDefault();track('notes_c
   if(!isIOS){toast('Scan the QR with your iPhone →');return;}
   if(!MDTXT){toast('Still loading the note… tap again in a second');return;}
   const files=[new File([new Blob([MDTXT],{type:'text/markdown'})],N.fbase+'.md',{type:'text/markdown'})];
-  if(IMGBLOB)files.push(new File([IMGBLOB],N.fbase+'.jpg',{type:'image/jpeg'}));
   let r='unsupported';
   if(navigator.canShare&&navigator.canShare({files})){
     try{await navigator.share({files});r='ok';}catch(err){r=(err&&err.name==='AbortError')?'cancel':'fail';}
