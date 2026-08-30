@@ -1,8 +1,6 @@
 📈 ECB1101 Micro Exam Cheat-Note
-Introductory Microeconomics · Monash University
-
-Every graph, every model, every mark — plus the one-page visual Sia drew from the bible.
-每张图、每个模型、每一分 —— 外加 Sia 从 bible 里画出来的一页视觉图。
+Monash University · ECB1101 · S1 2026
+#ECB1101 #Monash #Economics #ExamBible #S12026
 
 📌 EXAM FACTS · 考试事实
 • Final exam: 50% · three sections
@@ -59,6 +57,6 @@ Every graph, every model, every mark — plus the one-page visual Sia drew from 
 
 ✎ Section C: label EVERY axis, curve, shift arrow, equilibrium & shaded area ✎
 
-Source: ECB1101 Exam Bible · 23 pages · https://www.asksia.ai/explore/au-monash/ecb1101
+Source: ECB1101 Exam Bible · https://www.asksia.ai/explore/au-monash/ecb1101
 This note: https://mark-sia.github.io/asksia-notes-lab/n/ecb1101/
-Made with AskSia — your personal college study AI copilot
+Made with AskSia
