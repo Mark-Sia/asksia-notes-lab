@@ -61,8 +61,12 @@ def notes_html(n):
 
 
 def notes_md(n):
-    """Markdown payload → 'Make Rich Text from Markdown' → Create Note. Header · visual · structured text."""
-    L = [f"**{n['uni']}** · {n['code']} {n['subtitle'].split(' · ')[0]} · {n['term']}  ", " ".join(tags(n)), ""]
+    """Markdown payload for iOS 26 Notes import (Files → Share → Notes → Import): headings, bold, lists and
+    links survive. Layout per Mark 2026-08-30: 学校 · 科名 · tag → AI 图 → 结构化编排（无 intro）.
+    NB: the tag line must NOT start with '#' or Markdown reads it as a heading — hence the 🏷 prefix."""
+    L = [f"# {n['emoji']} {n['code']} · {n['subtitle'].split(' · ')[0]}", "",
+         f"**{n['uni']}** · {n['term']} · {n['discipline']}  ",
+         "🏷 " + " ".join(tags(n)), ""]
     if n.get("visual"): L += [f"![Sia visual]({visual_url(n)})", "", f"*🦭 {n['visual_caption']}*", ""]
     for s in n["sections"]:
         L.append(f"## {s['emoji']} {s['title']}"); L.append(""); k = s["kind"]

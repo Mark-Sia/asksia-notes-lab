@@ -1,5 +1,7 @@
-**Monash University** · ECB1101 Introductory Microeconomics · S1 2026  
-#ECB1101 #Monash #Economics #ExamBible #S12026
+# 📈 ECB1101 · Introductory Microeconomics
+
+**Monash University** · S1 2026 · Economics  
+🏷 #ECB1101 #Monash #Economics #ExamBible #S12026
 
 ![Sia visual](https://mark-sia.github.io/asksia-notes-lab/n/ecb1101/ecb1101-visual.jpg)
 
