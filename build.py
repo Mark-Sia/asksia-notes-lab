@@ -221,7 +221,7 @@ def note_page(n, qr):
   <p class="source">Source: <a href="{n['source_url']}">{e(n['source_name'])}</a> · {n['source_pages']} pages · {n['source_chapters']} chapters → compressed into this one note.</p>
   <div class="cta"><div class="in">
     <a class="btn" id="add" href="#">{ICON} Add to Apple Notes</a>
-    <div class="alt"><a id="alt2">Prefer full formatting? Import the file</a></div>
+    <div class="alt"><a id="alt2">Want the visual inside the note? Power mode</a></div>
   </div></div>
 </main>
 <aside class="aside"><div class="box"><h3>📱 Scan with your iPhone</h3><p>Camera app → the note opens in Safari → tap <b>Add to Apple Notes</b>. The finished note — course header, the Sia visual inline, then the whole cheat-note — is written into Notes and Notes opens on it. No share sheet, no pasting.</p>{qr}<div class="u">{url}</div></div></aside></div>
@@ -252,17 +252,30 @@ function setupSheet(){{
    +'<a class="btn" id="getsc" href="'+N.scFile+'">📥 Get the shortcut</a>'
    +'<p style="margin-top:12px"><a class="btn sec" id="done" href="#">Added it → Add to Apple Notes</a></p>');
 }}
-$('#add').addEventListener('click',ev=>{{ev.preventDefault();track('notes_cta');
-  if(!isIOS){{toast('Scan the QR with your iPhone →');return;}}
-  if(installed())runOneTap();else setupSheet();}});
-$('#alt2').addEventListener('click',async ev=>{{ev.preventDefault();track('file_flow');
+// default for everyone: no install, no account, no permissions — just the share sheet
+async function importMd(){{
   try{{
     const md=await (await fetch(N.md)).text();
     const f=new File([new Blob([md],{{type:'text/markdown'}})],N.fbase+'.md',{{type:'text/markdown'}});
-    if(navigator.canShare&&navigator.canShare({{files:[f]}})){{await navigator.share({{files:[f]}});track('shared_md');
-      sheet('Pick Notes → Import','<p>In the share sheet tap <b>Notes</b>, then <b>Import</b>. Full formatting survives; Apple&rsquo;s importer cannot carry images, so the visual rides as a link.</p>');}}
-    else toast('File sharing not available here');
-  }}catch(err){{if(!(err&&err.name==='AbortError'))toast('Sharing failed');}}}});
+    if(navigator.canShare&&navigator.canShare({{files:[f]}})){{
+      await navigator.share({{files:[f]}});track('shared_md');
+      sheet('Pick Notes → Import','<p>In the share sheet tap <b>Notes</b> (备忘录), then <b>Import</b>. The finished note lands in your <b>Imported Notes</b> folder — headings, bold, bilingual terms and tags all intact.</p><p style="font-size:13px;color:#777">The Sia visual rides as a tappable link: Apple&rsquo;s Markdown importer cannot carry images. Want it rendered inside the note? Use <b>Power mode</b> below the button.</p>');
+      return;
+    }}
+  }}catch(err){{if(err&&err.name==='AbortError'){{track('share_cancel');return;}}}}
+  copyFallback();
+}}
+async function copyFallback(){{
+  try{{const html=await (await fetch(N.html)).text();
+    await navigator.clipboard.write([new ClipboardItem({{'text/html':new Blob([html],{{type:'text/html'}}),'text/plain':new Blob([N.text],{{type:'text/plain'}})}})]);
+    track('copy_rich');sheet('Copied — paste it in','<p>Your browser can\u2019t hand files to Notes, so the whole note (visual included) is on your clipboard.</p><ol><li>Open <b>Notes</b></li><li>New note → <b>Paste</b></li></ol>');}}
+  catch(e){{try{{await navigator.clipboard.writeText(N.text);toast('Copied as plain text ✓');}}catch(e2){{toast('Copy blocked by the browser');}}}}
+}}
+$('#add').addEventListener('click',ev=>{{ev.preventDefault();track('notes_cta');
+  if(isIOS)importMd(); else copyFallback();}});
+$('#alt2').addEventListener('click',ev=>{{ev.preventDefault();track('power_mode');
+  if(!isIOS){{toast('Power mode needs an iPhone');return;}}
+  if(installed())runOneTap();else setupSheet();}});
 document.querySelectorAll('[data-close]').forEach(x=>x.addEventListener('click',()=>$('#sheet').classList.remove('on')));
 const q=new URLSearchParams(location.search);
 if(q.get('added')){{track('note_created');toast('✓ Written into your Apple Notes',4000);try{{localStorage.setItem('asksia_sc','1')}}catch(e){{}}}}
@@ -287,8 +300,8 @@ def library_page(items):
 <div class="modal" id="m-{n['id']}"><div class="mbox"><button class="x" data-close>×</button>
   <div class="mhead">{ICON}<div><b>Add {e(n['code'])} to Apple Notes</b><div class="msub">{e(n['subtitle'].split(' · ')[0])}</div></div></div>
   <div class="mgrid"><div class="qrcol">{n['qr_svg']}<div class="u">{n['url']}</div></div>
-    <div class="how"><ol><li>Open the <b>Camera</b> app on your iPhone and point it here</li><li>Tap the link → the note opens in Safari (no login)</li><li>Tap <b>Add to Apple Notes</b> → the finished note is written into Notes and opens</li></ol>
-      <p class="get">One tap hands Notes a self-contained HTML file — Apple imports it as a finished note: <b>headings, bold, bilingual terms and the Sia visual</b>, all editable. No new note, no pasting.</p>
+    <div class="how"><ol><li>Open the <b>Camera</b> app on your iPhone and point it here</li><li>Tap the link → the note opens in Safari (no login)</li><li>Tap <b>Add to Apple Notes</b> → pick <b>Notes</b> → <b>Import</b> (no install, no account)</li></ol>
+      <p class="get"><b>Nothing to install.</b> The note lands in Notes fully formatted — headings, bold, bilingual terms, tags — and stays editable. The Sia visual rides as a tappable link; a per-user <i>Power mode</i> (one-time Shortcut) renders it inside the note instead.</p>
       <a class="b ghost" href="n/{n['id']}/" target="_blank" rel="noopener">Open the note page ↗</a></div></div></div></div>""" for n in items)
     return f"""<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>AskSia Library · Add to Apple Notes (MVP)</title><link rel="icon" href="data:,">
 <style>
@@ -310,7 +323,7 @@ def library_page(items):
 <div class="nav"><img src="assets/logo.png" alt="AskSia"><div class="links"><span class="on">For Students ⌄</span><span>Useful Tools ⌄</span><span>Resources ⌄</span><span>Pricing</span></div><div class="right"><span>Log in</span><span class="dl">Download App →</span></div></div>
 <div class="crumbbar"><span>Library / <b>Exam Bibles</b> / Add to Apple Notes</span><span class="pill">Get A+ · $0.99 Trial</span></div>
 <div class="lab"><div class="banner"><div><h1>Every Bible, one tap into <span class="g">your Apple Notes</span></h1>
-<p><b>Internal MVP v2 · 2026-08-30 · Kai.</b> Next to “Download PDF”, a second exit: the bible compressed into one editable Apple Note — course header → the visual Sia drew → exam facts · formulas · bilingual terms · traps. One tap hands Notes a self-contained HTML file, and Apple imports it as a finished note — the Sia visual included, everything editable.<br><b>Test:</b> click <b>Add to Apple Notes</b> → scan the QR with your iPhone → tap the button → <b>Notes</b> → <b>Import</b>.</p></div>
+<p><b>Internal MVP v2 · 2026-08-30 · Kai.</b> Next to “Download PDF”, a second exit: the bible compressed into one editable Apple Note — course header → the visual Sia drew → exam facts · formulas · bilingual terms · traps. Default path installs nothing: the note is handed to iOS as Markdown and Notes imports it fully formatted. <b>Power mode</b> (an opt-in one-time Shortcut) additionally renders the Sia visual inside the note — measured, but too much install friction to be the default for consumers.<br><b>Test:</b> click <b>Add to Apple Notes</b> → scan the QR with your iPhone → tap the button → <b>Notes</b> → <b>Import</b>.</p></div>
 <div class="exp"><div class="t">Experiment: Notes CTR vs PDF CTR <small>this browser only</small></div><div class="bars"><span>📝 Notes</span><div class="bar"><i id="b1" style="width:0"></i></div><span class="n" id="n1">0</span><span>📄 PDF</span><div class="bar pdf"><i id="b2" style="width:0"></i></div><span class="n" id="n2">0</span></div><div class="ratio">Notes ÷ PDF = <b id="ratio">—</b> · hypothesis: ≥ 2×</div><div class="rs" id="reset">reset counters</div></div></div></div>
 <div class="list">{rows}</div>
 <script>

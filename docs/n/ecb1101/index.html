@@ -49,7 +49,7 @@ ol.steps{margin:0;padding-left:0;list-style:none;counter-reset:s}ol.steps li{cou
   <p class="source">Source: <a href="https://www.asksia.ai/explore/au-monash/ecb1101">ECB1101 Exam Bible</a> · 23 pages · 9 chapters → compressed into this one note.</p>
   <div class="cta"><div class="in">
     <a class="btn" id="add" href="#"><svg class="nicon" viewBox="0 0 40 40" width="22" height="22" aria-hidden="true"><rect x="2" y="2" width="36" height="36" rx="9" fill="#fff" stroke="#d9d9de"/><path d="M2 11 A9 9 0 0 1 11 2 H29 A9 9 0 0 1 38 11 V12 H2 Z" fill="#F5C542"/><rect x="9" y="18" width="22" height="2.4" rx="1.2" fill="#9a9aa2"/><rect x="9" y="24" width="22" height="2.4" rx="1.2" fill="#9a9aa2"/><rect x="9" y="30" width="14" height="2.4" rx="1.2" fill="#9a9aa2"/></svg> Add to Apple Notes</a>
-    <div class="alt"><a id="alt2">Prefer full formatting? Import the file</a></div>
+    <div class="alt"><a id="alt2">Want the visual inside the note? Power mode</a></div>
   </div></div>
 </main>
 <aside class="aside"><div class="box"><h3>📱 Scan with your iPhone</h3><p>Camera app → the note opens in Safari → tap <b>Add to Apple Notes</b>. The finished note — course header, the Sia visual inline, then the whole cheat-note — is written into Notes and Notes opens on it. No share sheet, no pasting.</p><?xml version='1.0' encoding='UTF-8'?>
@@ -81,17 +81,30 @@ function setupSheet(){
    +'<a class="btn" id="getsc" href="'+N.scFile+'">📥 Get the shortcut</a>'
    +'<p style="margin-top:12px"><a class="btn sec" id="done" href="#">Added it → Add to Apple Notes</a></p>');
 }
-$('#add').addEventListener('click',ev=>{ev.preventDefault();track('notes_cta');
-  if(!isIOS){toast('Scan the QR with your iPhone →');return;}
-  if(installed())runOneTap();else setupSheet();});
-$('#alt2').addEventListener('click',async ev=>{ev.preventDefault();track('file_flow');
+// default for everyone: no install, no account, no permissions — just the share sheet
+async function importMd(){
   try{
     const md=await (await fetch(N.md)).text();
     const f=new File([new Blob([md],{type:'text/markdown'})],N.fbase+'.md',{type:'text/markdown'});
-    if(navigator.canShare&&navigator.canShare({files:[f]})){await navigator.share({files:[f]});track('shared_md');
-      sheet('Pick Notes → Import','<p>In the share sheet tap <b>Notes</b>, then <b>Import</b>. Full formatting survives; Apple&rsquo;s importer cannot carry images, so the visual rides as a link.</p>');}
-    else toast('File sharing not available here');
-  }catch(err){if(!(err&&err.name==='AbortError'))toast('Sharing failed');}});
+    if(navigator.canShare&&navigator.canShare({files:[f]})){
+      await navigator.share({files:[f]});track('shared_md');
+      sheet('Pick Notes → Import','<p>In the share sheet tap <b>Notes</b> (备忘录), then <b>Import</b>. The finished note lands in your <b>Imported Notes</b> folder — headings, bold, bilingual terms and tags all intact.</p><p style="font-size:13px;color:#777">The Sia visual rides as a tappable link: Apple&rsquo;s Markdown importer cannot carry images. Want it rendered inside the note? Use <b>Power mode</b> below the button.</p>');
+      return;
+    }
+  }catch(err){if(err&&err.name==='AbortError'){track('share_cancel');return;}}
+  copyFallback();
+}
+async function copyFallback(){
+  try{const html=await (await fetch(N.html)).text();
+    await navigator.clipboard.write([new ClipboardItem({'text/html':new Blob([html],{type:'text/html'}),'text/plain':new Blob([N.text],{type:'text/plain'})})]);
+    track('copy_rich');sheet('Copied — paste it in','<p>Your browser can’t hand files to Notes, so the whole note (visual included) is on your clipboard.</p><ol><li>Open <b>Notes</b></li><li>New note → <b>Paste</b></li></ol>');}
+  catch(e){try{await navigator.clipboard.writeText(N.text);toast('Copied as plain text ✓');}catch(e2){toast('Copy blocked by the browser');}}
+}
+$('#add').addEventListener('click',ev=>{ev.preventDefault();track('notes_cta');
+  if(isIOS)importMd(); else copyFallback();});
+$('#alt2').addEventListener('click',ev=>{ev.preventDefault();track('power_mode');
+  if(!isIOS){toast('Power mode needs an iPhone');return;}
+  if(installed())runOneTap();else setupSheet();});
 document.querySelectorAll('[data-close]').forEach(x=>x.addEventListener('click',()=>$('#sheet').classList.remove('on')));
 const q=new URLSearchParams(location.search);
 if(q.get('added')){track('note_created');toast('✓ Written into your Apple Notes',4000);try{localStorage.setItem('asksia_sc','1')}catch(e){}}
