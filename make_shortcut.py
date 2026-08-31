@@ -35,7 +35,7 @@ actions = [
     get(U[1], tok(U[0], "Contents of URL"), "title",  "Title"),
     get(U[2], tok(U[0], "Contents of URL"), "header", "Header"),
     get(U[3], tok(U[0], "Contents of URL"), "img",    "Image URL"),
-    get(U[4], tok(U[0], "Contents of URL"), "html",   "Body URL"),
+    get(U[4], tok(U[0], "Contents of URL"), "txt",    "Body URL"),
     # 1 · the note, opened with the course header only
     {"WFWorkflowActionIdentifier": f"{B}.CreateNoteLinkAction",
      "WFWorkflowActionParameters": {"UUID": U[5], "AppIntentDescriptor": desc("CreateNoteLinkAction"),
@@ -48,12 +48,11 @@ actions = [
                                     "note": tok(U[5], "Create Note"), "WFNote": tok(U[5], "Create Note")}},
     # 3 · the structured body, appended below the visual
     fetch(U[8], tok_s(U[4], "Body URL")),
-    {"WFWorkflowActionIdentifier": "is.workflow.actions.getrichtextfromhtml",
-     "WFWorkflowActionParameters": {"UUID": U[9], "WFHTML": tok(U[8], "Contents of URL")}},
+    # plain text, not a rich-text object: coercing rich text into this field yields an empty append (measured)
     {"WFWorkflowActionIdentifier": f"{B}.AppendToNoteLinkAction",
      "WFWorkflowActionParameters": {"UUID": U[10], "AppIntentDescriptor": desc("AppendToNoteLinkAction"),
                                     "WFNote": tok(U[5], "Create Note"), "note": tok(U[5], "Create Note"),
-                                    "WFInput": tok_s(U[9], "Rich Text from HTML")}},
+                                    "WFInput": tok_s(U[8], "Contents of URL")}},
     # 4 · land the user in the finished note
     {"WFWorkflowActionIdentifier": f"{B}.OpenNoteLinkAction",
      "WFWorkflowActionParameters": {"UUID": U[11], "AppIntentDescriptor": desc("OpenNoteLinkAction"),

@@ -127,8 +127,8 @@ def notes_import_html(n):
     head = f'<!doctype html><html><head><meta charset="utf-8"><title>{e(n["title"])}</title></head><body>'
     return deticker(head + "".join(P) + "</body></html>")
 
-def plain_text(n):
-    L = [f"{n['emoji']} {n['title']}", f"{n['uni']} · {n['code']} · {n['term']}", " ".join(tags(n)), ""]
+def plain_text(n, body_only=False):
+    L = [] if body_only else [f"{n['emoji']} {n['title']}", f"{n['uni']} · {n['code']} · {n['term']}", " ".join(tags(n)), ""]
     for s in n["sections"]:
         L.append(f"{s['emoji']} {s['title'].upper()}"); k = s["kind"]
         if k in ("facts", "formulas"): L += [f"• {a}: {b}" for a, b in s["items"]]
@@ -369,7 +369,7 @@ def main():
             "txt": f"{SITE}/n/{n['id']}/note.txt",
             "md": f"{SITE}/n/{n['id']}/note.md",
         }, ensure_ascii=False), encoding="utf-8")
-        (d / "note.txt").write_text(plain_text(n), encoding="utf-8")
+        (d / "note.txt").write_text(plain_text(n, body_only=True), encoding="utf-8")
         for stale in ("card.png", "_card.html"): (d / stale).unlink(missing_ok=True)
         items.append(dict(n, url=note_url(n), qr_svg=svg)); print("note →", d)
     for stale in ("buss1020", "sat-math"):   # not featured this round
