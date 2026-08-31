@@ -1,29 +1,64 @@
 #!/usr/bin/env python3
-"""Build + sign the 'AskSia Notes' shortcut (format verified against Shortcuts' own DB serialization, 2026-08-30).
-Shortcut Input (text) = "<note title>\n<payload url>"
-  Split Text → title / url → Get Contents of URL → Get Rich Text from HTML → Create Note(name, WFCreateNoteInput=rich) → Open Note
-python3 make_shortcut.py [--name=X] [--no-open]"""
+# -*- coding: utf-8 -*-
+"""Build + sign 'AskSia Notes' — option A: one tap, zero pickers.
+Input = the note's note.json URL. Produces, in this order:
+  title → header (uni · term · discipline + tags) → the Sia visual INLINE → the full structured body → opens Notes.
+Key facts proven on device 2026-08-30 (see KILL-TEST-2026-08-30.md):
+  · Create Note takes its body on the legacy key WFCreateNoteInput
+  · Add File (AddFileAttachmentLinkAction) inlines a real image and appends after the current content
+  · Append to Note takes its text on the legacy key WFInput
+python3 make_shortcut.py [--name="AskSia Notes"]
+"""
 import plistlib, uuid, subprocess, sys, os
-NAME = next((a.split("=",1)[1] for a in sys.argv if a.startswith("--name=")), "AskSia Notes")
-OPEN = "--no-open" not in sys.argv
+NAME = next((a.split("=", 1)[1] for a in sys.argv if a.startswith("--name=")), "AskSia Notes")
 B = "com.apple.mobilenotes"
-U = [str(uuid.uuid4()).upper() for _ in range(8)]
-def tok_input(): return {"Value": {"attachmentsByRange": {"{0, 1}": {"Type": "ExtensionInput"}}, "string": "￼"}, "WFSerializationType": "WFTextTokenString"}
-def tok_out(uid, name): return {"Value": {"Type": "ActionOutput", "OutputUUID": uid, "OutputName": name}, "WFSerializationType": "WFTextTokenAttachment"}
-def tok_out_str(uid, name): return {"Value": {"attachmentsByRange": {"{0, 1}": {"Type": "ActionOutput", "OutputUUID": uid, "OutputName": name}}, "string": "￼"}, "WFSerializationType": "WFTextTokenString"}
-def desc(i): return {"AppIntentIdentifier": i, "BundleIdentifier": B, "Name": "Notes", "TeamIdentifier": "0000000000"}
+U = [str(uuid.uuid4()).upper() for _ in range(12)]
+
+def tok_input():
+    return {"Value": {"attachmentsByRange": {"{0, 1}": {"Type": "ExtensionInput"}}, "string": "￼"}, "WFSerializationType": "WFTextTokenString"}
+def tok(u, n):
+    return {"Value": {"Type": "ActionOutput", "OutputUUID": u, "OutputName": n}, "WFSerializationType": "WFTextTokenAttachment"}
+def tok_s(u, n):
+    return {"Value": {"attachmentsByRange": {"{0, 1}": {"Type": "ActionOutput", "OutputUUID": u, "OutputName": n}}, "string": "￼"}, "WFSerializationType": "WFTextTokenString"}
+def desc(i):
+    return {"AppIntentIdentifier": i, "BundleIdentifier": B, "Name": "Notes", "TeamIdentifier": "0000000000"}
+def get(u, src, key, out):
+    return {"WFWorkflowActionIdentifier": "is.workflow.actions.getvalueforkey",
+            "WFWorkflowActionParameters": {"UUID": u, "WFInput": src, "WFGetDictionaryValueType": "Value",
+                                           "WFDictionaryKey": key, "CustomOutputName": out}}
+def fetch(u, url):
+    return {"WFWorkflowActionIdentifier": "is.workflow.actions.downloadurl",
+            "WFWorkflowActionParameters": {"UUID": u, "WFURL": url, "WFHTTPMethod": "GET", "ShowHeaders": False}}
+
 actions = [
- {"WFWorkflowActionIdentifier": "is.workflow.actions.text.split", "WFWorkflowActionParameters": {"UUID": U[0], "text": tok_input(), "WFTextSeparator": "New Lines"}},
- {"WFWorkflowActionIdentifier": "is.workflow.actions.getitemfromlist", "WFWorkflowActionParameters": {"UUID": U[1], "WFInput": tok_out(U[0], "Split Text"), "WFItemSpecifier": "First Item", "CustomOutputName": "Note Title"}},
- {"WFWorkflowActionIdentifier": "is.workflow.actions.getitemfromlist", "WFWorkflowActionParameters": {"UUID": U[2], "WFInput": tok_out(U[0], "Split Text"), "WFItemSpecifier": "Last Item", "CustomOutputName": "Payload URL"}},
- {"WFWorkflowActionIdentifier": "is.workflow.actions.downloadurl", "WFWorkflowActionParameters": {"UUID": U[3], "WFURL": tok_out_str(U[2], "Payload URL"), "WFHTTPMethod": "GET", "ShowHeaders": False}},
- {"WFWorkflowActionIdentifier": "is.workflow.actions.getvalueforkey", "WFWorkflowActionParameters": {"UUID": U[7], "WFInput": tok_out(U[3], "Contents of URL"), "WFGetDictionaryValueType": "Value", "WFDictionaryKey": "md", "CustomOutputName": "Markdown"}},
- {"WFWorkflowActionIdentifier": "is.workflow.actions.getrichtextfrommarkdown", "WFWorkflowActionParameters": {"UUID": U[4], "WFInput": tok_out(U[7], "Markdown")}},
- {"WFWorkflowActionIdentifier": "com.apple.mobilenotes.SharingExtension", "WFWorkflowActionParameters": {"UUID": U[5], "AppIntentDescriptor": desc("CreateNoteLinkAction"),
-      "name": tok_out_str(U[1], "Note Title"), "WFCreateNoteInput": tok_out_str(U[4], "Rich Text from Markdown"), "ShowWhenRun": False}},
+    fetch(U[0], tok_input()),                                   # the note.json manifest
+    get(U[1], tok(U[0], "Contents of URL"), "title",  "Title"),
+    get(U[2], tok(U[0], "Contents of URL"), "header", "Header"),
+    get(U[3], tok(U[0], "Contents of URL"), "img",    "Image URL"),
+    get(U[4], tok(U[0], "Contents of URL"), "html",   "Body URL"),
+    # 1 · the note, opened with the course header only
+    {"WFWorkflowActionIdentifier": f"{B}.CreateNoteLinkAction",
+     "WFWorkflowActionParameters": {"UUID": U[5], "AppIntentDescriptor": desc("CreateNoteLinkAction"),
+                                    "name": tok_s(U[1], "Title"), "WFCreateNoteInput": tok_s(U[2], "Header")}},
+    # 2 · the Sia visual, inlined right under the header
+    fetch(U[6], tok_s(U[3], "Image URL")),
+    {"WFWorkflowActionIdentifier": f"{B}.AddFileAttachmentLinkAction",
+     "WFWorkflowActionParameters": {"UUID": U[7], "AppIntentDescriptor": desc("AddFileAttachmentLinkAction"),
+                                    "name": "Sia visual", "file": tok(U[6], "Contents of URL"),
+                                    "note": tok(U[5], "Create Note"), "WFNote": tok(U[5], "Create Note")}},
+    # 3 · the structured body, appended below the visual
+    fetch(U[8], tok_s(U[4], "Body URL")),
+    {"WFWorkflowActionIdentifier": "is.workflow.actions.getrichtextfromhtml",
+     "WFWorkflowActionParameters": {"UUID": U[9], "WFHTML": tok(U[8], "Contents of URL")}},
+    {"WFWorkflowActionIdentifier": f"{B}.AppendToNoteLinkAction",
+     "WFWorkflowActionParameters": {"UUID": U[10], "AppIntentDescriptor": desc("AppendToNoteLinkAction"),
+                                    "WFNote": tok(U[5], "Create Note"), "note": tok(U[5], "Create Note"),
+                                    "WFInput": tok_s(U[9], "Rich Text from HTML")}},
+    # 4 · land the user in the finished note
+    {"WFWorkflowActionIdentifier": f"{B}.OpenNoteLinkAction",
+     "WFWorkflowActionParameters": {"UUID": U[11], "AppIntentDescriptor": desc("OpenNoteLinkAction"),
+                                    "target": tok(U[5], "Create Note")}},
 ]
-if OPEN:
-    actions.append({"WFWorkflowActionIdentifier": "is.workflow.actions.openapp", "WFWorkflowActionParameters": {"UUID": U[6], "WFAppIdentifier": B, "WFSelectedApp": {"BundleIdentifier": B, "Name": "Notes", "TeamIdentifier": "0000000000"}}})
 wf = {"WFWorkflowClientVersion": "2607.0.3", "WFWorkflowMinimumClientVersion": 900, "WFWorkflowMinimumClientVersionString": "900",
       "WFWorkflowIcon": {"WFWorkflowIconGlyphNumber": 59511, "WFWorkflowIconStartColor": 4274264319},
       "WFWorkflowTypes": ["NCWidget", "WatchKit"], "WFWorkflowInputContentItemClasses": ["WFStringContentItem", "WFURLContentItem"],
@@ -33,4 +68,4 @@ os.makedirs("dist", exist_ok=True)
 raw, out = f"dist/{NAME}-unsigned.shortcut", f"dist/{NAME}.shortcut"
 with open(raw, "wb") as f: plistlib.dump(wf, f, fmt=plistlib.FMT_BINARY)
 r = subprocess.run(["shortcuts", "sign", "--mode", "anyone", "--input", raw, "--output", out], capture_output=True, text=True)
-print("signed:", out, os.path.getsize(out) if os.path.exists(out) else "MISSING", "| rc", r.returncode)
+print("signed:", out, os.path.getsize(out) if os.path.exists(out) else "MISSING", "rc", r.returncode)

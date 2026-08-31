@@ -361,7 +361,14 @@ def main():
         (d / "note.html").write_text(notes_html(n), encoding="utf-8")
         (d / "note-import.html").write_text(notes_import_html(n), encoding="utf-8")
         (d / "note.md").write_text(notes_md(n), encoding="utf-8")
-        (d / "note.json").write_text(json.dumps({"title": f"{n['emoji']} {n['title']}", "md": notes_md(n)}, ensure_ascii=False), encoding="utf-8")
+        (d / "note.json").write_text(json.dumps({
+            "title": f"{n['emoji']} {n['code']} · {n['subtitle'].split(' · ')[0]}",
+            "header": f"{n['uni']} · {n['term']} · {n['discipline']}\n" + " ".join(tags(n)),
+            "img": visual_url(n) or "",
+            "html": f"{SITE}/n/{n['id']}/note.html",
+            "txt": f"{SITE}/n/{n['id']}/note.txt",
+            "md": f"{SITE}/n/{n['id']}/note.md",
+        }, ensure_ascii=False), encoding="utf-8")
         (d / "note.txt").write_text(plain_text(n), encoding="utf-8")
         for stale in ("card.png", "_card.html"): (d / stale).unlink(missing_ok=True)
         items.append(dict(n, url=note_url(n), qr_svg=svg)); print("note →", d)
