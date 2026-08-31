@@ -250,7 +250,7 @@ function setupSheet(){{
    '<p><b>Add to Apple Notes</b> runs a small Apple Shortcut that writes the finished note — header, the Sia visual inline, then the whole cheat-note — straight into your Notes app.</p>'
    +'<ol><li>Tap <b>Get the shortcut</b> → in Shortcuts tap <b>Add Shortcut</b></li><li>Come back and tap the button below</li><li>First run only: iOS asks to allow it to fetch the note → <b>Allow</b></li></ol>'
    +'<a class="btn" id="getsc" href="'+N.scFile+'">📥 Get the shortcut</a>'
-   +'<p style="margin-top:12px"><a class="btn sec" id="done" href="#">I\'ve added it → Add to Apple Notes</a></p>');
+   +'<p style="margin-top:12px"><a class="btn sec" id="done" href="#">Added it → Add to Apple Notes</a></p>');
 }}
 $('#add').addEventListener('click',ev=>{{ev.preventDefault();track('notes_cta');
   if(!isIOS){{toast('Scan the QR with your iPhone →');return;}}
@@ -260,7 +260,7 @@ $('#alt2').addEventListener('click',async ev=>{{ev.preventDefault();track('file_
     const md=await (await fetch(N.md)).text();
     const f=new File([new Blob([md],{{type:'text/markdown'}})],N.fbase+'.md',{{type:'text/markdown'}});
     if(navigator.canShare&&navigator.canShare({{files:[f]}})){{await navigator.share({{files:[f]}});track('shared_md');
-      sheet('Pick Notes → Import','<p>In the share sheet tap <b>Notes</b>, then <b>Import</b>. Full formatting survives; Apple\'s importer cannot carry images, so the visual rides as a link.</p>');}}
+      sheet('Pick Notes → Import','<p>In the share sheet tap <b>Notes</b>, then <b>Import</b>. Full formatting survives; Apple&rsquo;s importer cannot carry images, so the visual rides as a link.</p>');}}
     else toast('File sharing not available here');
   }}catch(err){{if(!(err&&err.name==='AbortError'))toast('Sharing failed');}}}});
 document.querySelectorAll('[data-close]').forEach(x=>x.addEventListener('click',()=>$('#sheet').classList.remove('on')));

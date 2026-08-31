@@ -30,7 +30,14 @@ rect() {
 }
 
 read_rect() {
-  R=$(rect)
+  # the mirroring window flickers between AX queries; retry a few times before refusing,
+  # but still REFUSE outright if it is genuinely gone (never guess coordinates)
+  for _try in 1 2 3 4 5; do
+    R=$(rect)
+    [ -n "$R" ] && [ "$R" != "NOWINDOW" ] && break
+    osascript -e 'tell application "iPhone Mirroring" to activate' >/dev/null 2>&1
+    sleep 1
+  done
   if [ "$R" = "NOWINDOW" ] || [ -z "$R" ]; then
     echo "REFUSED: iPhone Mirroring 没有可见窗口 — 不发送任何输入" >&2; exit 1
   fi
